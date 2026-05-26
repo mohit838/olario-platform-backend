@@ -11,8 +11,8 @@
 	<groupId>com.mohitul</groupId>
 	<artifactId>olario</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name/>
-	<description/>
+	<name>olario-cms-service</name>
+	<description>Olario CMS service built with Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
