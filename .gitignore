@@ -1,0 +1,43 @@
+# Go binaries and build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.so.*
+*.dylib
+*.a
+bin/
+dist/
+
+# Test and coverage output
+*.test
+*.out
+coverage.out
+coverage.html
+
+# Dependency and workspace artifacts
+vendor/
+go.work
+go.work.sum
+
+# Air live reload
+tmp/
+build-errors.log
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
