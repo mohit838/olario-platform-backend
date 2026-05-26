@@ -1,36 +1,67 @@
-# Olario — Multi-Tenant Grocery Commerce Platform
+# Grocery Shop Platform
 
-This repository is in minimal planning/bootstrap mode.
-We are intentionally starting small and adding complexity in phases.
+A generic starter repository for building a multi-tenant grocery shop platform.
 
-## Read First
-1. `notes/VISION.md`
-2. `notes/main_project.md`
-3. `notes/FOLDER_STRUCTURE.md`
-4. `notes/ARCHITECTURE.md`
-5. `notes/SERVICE_RESPONSIBILITIES.md`
-6. `notes/DB_DESIGN.md`
-7. `notes/LOCAL_DEPENDENCIES.md`
-8. `notes/K8S_PLAN.md`
+## Tech Stack
 
-## Current Goal
-- Build a clean minimal base for Java + Go + C++ services behind Kong.
-- Use local machine dependencies now.
-- Keep project scalable for later VPS and Kubernetes deployment.
+- Backend: Go (REST API)
+- Frontend: Angular
+- Database: PostgreSQL
+- Cache/Queue (optional): Redis
 
-## Baseline Stack
-- PostgreSQL 17
-- Kong latest stable
-- Java 21 LTS
-- Go 1.26
-- Drogon latest stable
-- Angular latest LTS
-- Node.js v24.15.0
+## Project Structure
 
-## Later Phases
-- Observability: Loki, Prometheus, cAdvisor, Grafana
-- Orchestration: Kubernetes
+- `backend/` Go backend service
+- `frontend/` Angular frontend application
 
-## Security
-- `env.example` contains placeholders only.
-- Never commit `.env` or real credentials.
+## Multi-Tenant Approach
+
+The platform is designed to support multi-tenant workflows.
+
+- Tenant context is expected through request metadata (example: `X-Tenant-ID`)
+- Tenant resolution and access rules should be enforced in backend middleware
+- Data isolation can be implemented via schema-per-tenant, row-level tenancy, or database-per-tenant
+
+## Getting Started
+
+### 1. Backend
+
+```bash
+cd backend
+go mod init github.com/your-org/grocery-shop/backend
+go mod tidy
+```
+
+Then create a simple `main.go` and start the API:
+
+```bash
+go run .
+```
+
+### 2. Frontend
+
+```bash
+cd frontend
+ng new app --routing --style=scss
+cd app
+ng serve
+```
+
+## Environment Variables
+
+Create environment files for backend and frontend (for example `.env`), and define:
+
+- Database connection URL
+- Redis connection URL (if used)
+- API base URL for frontend
+- Tenant-related feature flags (if needed)
+
+## Development Notes
+
+- Keep backend API contracts versioned (for example `/api/v1`)
+- Validate tenant access on every protected request
+- Use separate config values for local, staging, and production
+
+## License
+
+Add your preferred license here (MIT, Apache-2.0, or private/internal).
