@@ -1,17 +1,22 @@
 # Olario — Multi-Tenant Grocery Commerce Platform
 
-This repository is currently in planning and structure phase.
-The goal is to establish a clear, scalable foundation before full implementation.
+This repository is in minimal planning/bootstrap mode.
+We are intentionally starting small and adding complexity in phases.
 
-## Start Here
-1. Read `notes/VISION.md`
-2. Read `notes/main_project.md`
-3. Read `notes/FOLDER_STRUCTURE.md`
-4. Read `notes/ARCHITECTURE.md`
-5. Read `notes/SERVICE_RESPONSIBILITIES.md`
-6. Read `notes/DB_DESIGN.md`
-7. Read `notes/STACK.md`
-8. Read `notes/LOCAL_DEPENDENCIES.md`
+## Read First
+1. `notes/VISION.md`
+2. `notes/main_project.md`
+3. `notes/FOLDER_STRUCTURE.md`
+4. `notes/ARCHITECTURE.md`
+5. `notes/SERVICE_RESPONSIBILITIES.md`
+6. `notes/DB_DESIGN.md`
+7. `notes/LOCAL_DEPENDENCIES.md`
+8. `notes/K8S_PLAN.md`
+
+## Current Goal
+- Build a clean minimal base for Java + Go + C++ services behind Kong.
+- Use local machine dependencies now.
+- Keep project scalable for later VPS and Kubernetes deployment.
 
 ## Baseline Stack
 - PostgreSQL 17
@@ -22,18 +27,10 @@ The goal is to establish a clear, scalable foundation before full implementation
 - Angular latest LTS
 - Node.js v24.15.0
 
-## Planned Later
-- Loki
-- Prometheus
-- cAdvisor
-- Grafana
-
-## Current State
-- Folder structure scaffold created for scale.
-- Service folders created (empty) for later initialization.
-- Documentation organized in `notes/` for roadmap-driven development.
-- DB/Kafka/MinIO are expected from your local machine environment.
+## Later Phases
+- Observability: Loki, Prometheus, cAdvisor, Grafana
+- Orchestration: Kubernetes
 
 ## Security
-- `env.example` uses placeholders only.
+- `env.example` contains placeholders only.
 - Never commit `.env` or real credentials.
