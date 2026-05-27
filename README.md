@@ -20,11 +20,30 @@ understand, test, and extend.
 
 ## Current Status
 
-The project is currently a minimal Go backend starter.
+The project has a small HTTP API foundation and an initial Postgres migration
+command. It also has a local-only full-circle dev API that demonstrates one
+request moving through HTTP, application service, Postgres, Redis, audit logs,
+and JSON response.
 
-The next milestone is the HTTP foundation: application bootstrap, routing,
-configuration, logging, health checks, graceful shutdown, and basic rate
-limiting.
+Implemented foundation pieces:
+
+- `cmd/api` entrypoint
+- `cmd/migrate` migration command
+- YAML config example with placeholder values
+- Chi router
+- `/healthz` endpoint
+- `log/slog` console logging
+- request logging, timeout, and rate limiting middleware
+- graceful shutdown with `context.Context`
+- multi-tenant grocery and SaaS schema migrations
+- local-only `POST /api/v1/dev/full-circle` teaching API
+- seed command for local/test data
+- invite-based registration and login with access/refresh tokens
+- Redis-backed refresh token rotation
+- local/development-only Swagger UI protected by superadmin docs credentials
+
+The next milestone is to replace the dev teaching API with real product,
+customer, and order endpoints one at a time.
 
 ## Requirements
 
@@ -33,7 +52,7 @@ limiting.
 - PostgreSQL, planned for persistent data
 - Redis, planned for cache, sessions, or rate limiting
 - MinIO, planned for object storage
-- Docker and Docker Compose, planned for local infrastructure
+- Docker and Docker Compose, planned for running the API container
 - Kubernetes or Minikube, planned for later deployment practice
 
 ## Configuration
@@ -45,7 +64,7 @@ URLs.
 Use command-line flags for non-secret runtime options:
 
 ```bash
-go run ./cmd --env=local --http-addr=:8080
+go run ./cmd/api --env=local --http-addr=:8080
 ```
 
 Examples of safe command-line flags:
@@ -67,6 +86,9 @@ MINIO_SECRET_KEY=<secret-key>
 MINIO_BUCKET=<bucket-name>
 MINIO_USE_SSL=false
 SMTP_PASSWORD=<password>
+SWAGGER_ENABLED=false
+SWAGGER_USERNAME=superadmin
+SWAGGER_PASSWORD=<password>
 ```
 
 For local development, create private environment files outside version control
@@ -75,11 +97,17 @@ only.
 
 Recommended private local files, when needed:
 
+- `config/config.local.yml`
 - `.env.local`
-- `.env.development`
 - local shell profile exports
 
 These files should not be committed with real values.
+
+The committed example config is:
+
+```text
+config/config.example.yml
+```
 
 ## Architecture Direction
 
@@ -92,11 +120,21 @@ Planned package direction:
 .
 ├── cmd/                  # application entrypoints
 ├── internal/app/         # application bootstrap and lifecycle
+├── internal/application/ # use cases and application services
 ├── internal/config/      # config loading and validation
-├── internal/domain/      # business concepts and rules
+├── internal/domain/      # DDD business concepts and rules
 ├── internal/http/        # REST handlers, routing, middleware
 └── internal/platform/    # infrastructure adapters
 ```
+
+Current domain areas:
+
+- `tenant`: tenant ownership boundary
+- `identity`: users and roles
+- `catalog`: categories and products
+- `inventory`: stock movement history
+- `customer`: customer records
+- `ordering`: orders and order items
 
 Infrastructure integrations should stay replaceable:
 
@@ -216,15 +254,13 @@ Output:
 
 ### Step 10: Local Infrastructure
 
-Goal: make the project easy to run locally.
+Goal: make the API easy to run locally while using external Postgres, Redis,
+and MinIO instances from private config.
 
 Output:
 
 - Dockerfile
-- Docker Compose setup
-- PostgreSQL service
-- Redis service
-- MinIO service
+- API-only Docker Compose setup
 - documented local commands
 
 ### Step 11: Observability
@@ -256,13 +292,86 @@ Output:
 Run the app:
 
 ```bash
-go run ./cmd
+go run ./cmd/api
 ```
 
-Run with runtime flags later:
+Run with the example YAML config:
 
 ```bash
-go run ./cmd --env=local --http-addr=:8080
+go run ./cmd/api --config=config/config.example.yml
+```
+
+Run with runtime flags:
+
+```bash
+go run ./cmd/api --env=local --http-addr=:8080
+```
+
+Run migrations after creating a private local config with a real Postgres DSN:
+
+```bash
+go run ./cmd/migrate --config=config/config.local.yml up
+```
+
+Or use Make:
+
+```bash
+make migrate-up
+make seed
+make run-local
+make swagger-generate
+```
+
+Call the local-only full-circle API after migrations are applied and the API is
+running:
+
+```bash
+curl -i -X POST http://127.0.0.1:8080/api/v1/dev/full-circle
+```
+
+Seed local/test data:
+
+```bash
+go run ./cmd/seed --config=config/config.local.yml
+```
+
+Login with seeded admin:
+
+```bash
+curl -i -X POST http://127.0.0.1:8080/api/v1/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"tenant_slug":"seed-grocery","email":"admin@seed-grocery.test","password":"12345678"}'
+```
+
+Refresh tokens are stored in Redis and rotated on every refresh.
+
+Open local Swagger docs, when enabled in private config:
+
+```text
+http://127.0.0.1:8080/swagger
+```
+
+Swagger is only intended for local/development mode. It is protected with
+configured superadmin docs credentials for now, and should later move behind
+real superadmin authentication.
+
+Seeded local accounts:
+
+```text
+superadmin@example.test        password: 12345678
+admin@seed-grocery.test       password: 12345678
+employee1@seed-grocery.test   password: 12345678
+employee2@seed-grocery.test   password: 12345678
+```
+
+Seeded users have 2FA disabled so local login testing is simple. In the real
+flow, invited users should set their password during registration and then be
+forced to enable 2FA after first login.
+
+Check migration version:
+
+```bash
+go run ./cmd/migrate --config=config/config.local.yml version
 ```
 
 Install Air, if needed:
@@ -277,7 +386,7 @@ Start live reload:
 air
 ```
 
-The Air config is in `.air.toml` and builds from `./cmd`.
+The Air config is in `.air.toml`.
 
 ## Definition of Done for Each Step
 
@@ -296,10 +405,54 @@ Database migrations will use `golang-migrate`.
 
 Planned behavior:
 
-- SQL migration files live in a dedicated migrations directory.
+- SQL migration files live in `cmd/migrate/migrations`.
 - Local development can run migrations manually.
 - The application should fail clearly when required database setup is missing.
 - Production migrations should be explicit and controlled.
+
+Current schema direction:
+
+- tenants
+- roles
+- users
+- categories
+- products
+- inventory movements
+- customers
+- orders
+- order items
+- vendors
+- low stock notifications
+- loyalty transactions
+- subscription plans
+- tenant subscriptions
+- tenant invitations
+- tenant deactivation requests
+- permissions
+- role permissions
+- report requests
+- audit logs
+
+Product low-stock threshold defaults to `5`, and users can set a different
+threshold per product.
+
+More schema notes live in:
+
+```text
+docs/database-schema.md
+```
+
+The API implementation flow guide lives in:
+
+```text
+docs/api-flow-guide.md
+```
+
+The frontend menu and permission seeding guide lives in:
+
+```text
+docs/menu-permissions.md
+```
 
 ## API Design Direction
 

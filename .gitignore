@@ -1,43 +1,63 @@
-# Go binaries and build artifacts
+# If you prefer the allow list template instead of the deny list, see community template:
+# https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
+#
+# Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
-*.so.*
 *.dylib
-*.a
 bin/
+build/
 dist/
 
-# Test and coverage output
+# Test binary, built with `go test -c`
 *.test
-*.out
-coverage.out
-coverage.html
 
-# Dependency and workspace artifacts
-vendor/
+# Code coverage profiles and other test artifacts
+*.out
+coverage.*
+*.coverprofile
+profile.cov
+*.log
+*.pid
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
 go.work
 go.work.sum
 
-# Air live reload
-tmp/
-build-errors.log
-
-# Logs
-*.log
-
-# Environment files
+# env files
 .env
 .env.*
 !.env.example
 
-# IDE/editor files
+# Editor/IDE
 .idea/
 .vscode/
-*.swp
-*.swo
-*~
 
-# OS files
-.DS_Store
+/.idea/
+/.vscode/
+
+# Private local config files
+config/local.yml
+config/config.yml
+config/*.local.yml
+config/*.local.yaml
+config/*copy*.yml
+config/*copy*.yaml
+!config/config.example.yml
+
+# Air
+tmp/
+
+/logs
+
+# Generated Swagger output. The app currently serves the starter OpenAPI spec
+# from internal/http/swagger.go; remove this ignore rule when generated Swagger
+# becomes the source of truth.
+docs/swagger/
+
+json_formatter.json
