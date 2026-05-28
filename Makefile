@@ -1,6 +1,7 @@
 CONFIG ?= config/config.local.yml
 HTTP_ADDR ?= :8080
-SWAGGER_MAIN ?= ./cmd/api/main.go
+SWAGGER_MAIN ?= main.go
+SWAGGER_DIRS ?= ./cmd/api,./internal/http,./internal/application/auth,./internal/application/dev
 SWAGGER_OUTPUT ?= ./docs/swagger
 
 .PHONY: help run run-local test vet tidy migrate-up migrate-down migrate-version seed docker-config docker-up docker-down dev-full-circle swagger-install swagger-generate swagger-check
@@ -67,7 +68,7 @@ swagger-install:
 	go install github.com/swaggo/swag/cmd/swag@latest
 
 swagger-generate:
-	swag init -g $(SWAGGER_MAIN) -o $(SWAGGER_OUTPUT) --parseInternal
+	swag init -g $(SWAGGER_MAIN) -d $(SWAGGER_DIRS) -o $(SWAGGER_OUTPUT) --parseInternal
 
 swagger-check:
 	test -f internal/http/swagger.go
