@@ -9,7 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func NewRouter(db *sql.DB) http.Handler {
+func AppRouters(db *sql.DB) http.Handler {
 	r := chi.NewRouter()
 
 	// NOTE:: From CHI router documentations

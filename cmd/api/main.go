@@ -25,7 +25,7 @@ func main() {
 	log.Println("DB is connected")
 
 	// Add Chi router
-	handler := router.NewRouter(db)
+	handler := router.AppRouters(db)
 
 	// Start server
 	log.Printf("Server start on port: %s", cfg.AppPort)
