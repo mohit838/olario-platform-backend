@@ -15,3 +15,15 @@ func ApiResponse(w http.ResponseWriter, statusCode int, response any) {
 		log.Println("failed to encode json response:", err)
 	}
 }
+
+// DecodeJSONBody decodes a JSON request body into the provided struct.
+func DecodeJSONBody(w http.ResponseWriter, r *http.Request, dst any) error {
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields() // Disallow unknown fields to prevent silent errors
+
+	if err := decoder.Decode(dst); err != nil {
+		return err
+	}
+
+	return nil
+}
