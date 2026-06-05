@@ -13,7 +13,7 @@ type TestResponse struct {
 type TestRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
-	IsActive bool   `json:"is_active"`
+	IsActive *bool  `json:"is_active,omitempty"`
 }
 
 type CreateTestRecord struct {

@@ -1,6 +1,7 @@
 package test
 
 import (
+	"errors"
 	"log"
 	"net/http"
 
@@ -51,11 +52,26 @@ func (h *Handler) CreateTest(w http.ResponseWriter, r *http.Request) {
 	test, err := h.service.CreateTest(r.Context(), req)
 	if err != nil {
 		log.Println("failed to create test:", err)
-		utils.ApiResponse(w, http.StatusInternalServerError, dto.APIResponse{
-			Success: false,
-			Message: "failed to create test",
-			Error:   "internal server error",
-		})
+		switch {
+		case errors.Is(err, ErrInvalidTestRequest):
+			utils.ApiResponse(w, http.StatusBadRequest, dto.APIResponse{
+				Success: false,
+				Message: "username and password are required",
+				Error:   "bad request",
+			})
+		case errors.Is(err, ErrDuplicateUsername):
+			utils.ApiResponse(w, http.StatusConflict, dto.APIResponse{
+				Success: false,
+				Message: "username already exists",
+				Error:   "conflict",
+			})
+		default:
+			utils.ApiResponse(w, http.StatusInternalServerError, dto.APIResponse{
+				Success: false,
+				Message: "failed to create test",
+				Error:   "internal server error",
+			})
+		}
 		return
 	}
 

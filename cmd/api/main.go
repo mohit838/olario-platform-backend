@@ -19,7 +19,7 @@ func main() {
 	// DB connections
 	db, err := database.LoadPostgresDB(cfg.AppDB)
 	if err != nil {
-		log.Fatalf("DB connections needed!")
+		log.Fatalf("DB connection failed: %v", err)
 	}
 	defer db.Close()
 	log.Println("DB is connected")

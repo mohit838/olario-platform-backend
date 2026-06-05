@@ -2,8 +2,10 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/joho/godotenv"
 )
@@ -30,6 +32,14 @@ func LoadConfig(path string) (*EnvConfig, error) {
 	appName := os.Getenv("APP_NAME")
 	appPort := os.Getenv("APP_PORT")
 	appDB := os.Getenv("DATABASE_URL")
+
+	if strings.TrimSpace(appPort) == "" {
+		appPort = "8080"
+	}
+
+	if strings.TrimSpace(appDB) == "" {
+		return nil, fmt.Errorf("DATABASE_URL is required")
+	}
 
 	appDebug := false
 	if parsed, parseErr := strconv.ParseBool(appDebugValue); parseErr == nil {

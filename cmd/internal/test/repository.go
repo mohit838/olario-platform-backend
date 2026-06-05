@@ -3,9 +3,13 @@ package test
 import (
 	"context"
 	"database/sql"
+	"errors"
 
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/mohit838/olario-platform-backend/cmd/internal/dto"
 )
+
+var ErrDuplicateUsername = errors.New("username already exists")
 
 type Repository struct {
 	db *sql.DB
@@ -57,6 +61,11 @@ func (r *Repository) CreateTest(ctx context.Context, req dto.CreateTestRecord) (
 		&test.UpdatedAt,
 	)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return dto.TestResponse{}, ErrDuplicateUsername
+		}
+
 		return dto.TestResponse{}, err
 	}
 

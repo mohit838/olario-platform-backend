@@ -15,7 +15,6 @@ RUN apk add --no-cache ca-certificates
 WORKDIR /app
 
 COPY --from=builder /out/olario-api /app/olario-api
-COPY config/config.example.yml /app/config/config.example.yml
 
 EXPOSE 8080
 
